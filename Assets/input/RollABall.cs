@@ -35,6 +35,15 @@ public partial class @RollABall: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""changeMode"",
+                    ""type"": ""Button"",
+                    ""id"": ""f217bf3f-6d13-4b14-b2f6-939e32d08479"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -136,32 +145,15 @@ public partial class @RollABall: IInputActionCollection2, IDisposable
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
-                }
-            ]
-        },
-        {
-            ""name"": ""Mode"",
-            ""id"": ""65a7d457-fbf1-40b5-87fb-130dd68cec55"",
-            ""actions"": [
-                {
-                    ""name"": ""Space"",
-                    ""type"": ""Button"",
-                    ""id"": ""76c6d243-6c92-4a20-a8d8-c0882df9b72b"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                }
-            ],
-            ""bindings"": [
+                },
                 {
                     ""name"": """",
-                    ""id"": ""9e42d6ba-3734-4cfd-ba6d-52b24efc3e46"",
+                    ""id"": ""777f1009-4c77-4b6a-b0aa-e1da15ca3b76"",
                     ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
-                    ""action"": ""Space"",
+                    ""groups"": """",
+                    ""action"": ""changeMode"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -234,9 +226,7 @@ public partial class @RollABall: IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
-        // Mode
-        m_Mode = asset.FindActionMap("Mode", throwIfNotFound: true);
-        m_Mode_Space = m_Mode.FindAction("Space", throwIfNotFound: true);
+        m_Player_changeMode = m_Player.FindAction("changeMode", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -299,11 +289,13 @@ public partial class @RollABall: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
+    private readonly InputAction m_Player_changeMode;
     public struct PlayerActions
     {
         private @RollABall m_Wrapper;
         public PlayerActions(@RollABall wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Player_Move;
+        public InputAction @changeMode => m_Wrapper.m_Player_changeMode;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -316,6 +308,9 @@ public partial class @RollABall: IInputActionCollection2, IDisposable
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
+            @changeMode.started += instance.OnChangeMode;
+            @changeMode.performed += instance.OnChangeMode;
+            @changeMode.canceled += instance.OnChangeMode;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -323,6 +318,9 @@ public partial class @RollABall: IInputActionCollection2, IDisposable
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
+            @changeMode.started -= instance.OnChangeMode;
+            @changeMode.performed -= instance.OnChangeMode;
+            @changeMode.canceled -= instance.OnChangeMode;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -340,52 +338,6 @@ public partial class @RollABall: IInputActionCollection2, IDisposable
         }
     }
     public PlayerActions @Player => new PlayerActions(this);
-
-    // Mode
-    private readonly InputActionMap m_Mode;
-    private List<IModeActions> m_ModeActionsCallbackInterfaces = new List<IModeActions>();
-    private readonly InputAction m_Mode_Space;
-    public struct ModeActions
-    {
-        private @RollABall m_Wrapper;
-        public ModeActions(@RollABall wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Space => m_Wrapper.m_Mode_Space;
-        public InputActionMap Get() { return m_Wrapper.m_Mode; }
-        public void Enable() { Get().Enable(); }
-        public void Disable() { Get().Disable(); }
-        public bool enabled => Get().enabled;
-        public static implicit operator InputActionMap(ModeActions set) { return set.Get(); }
-        public void AddCallbacks(IModeActions instance)
-        {
-            if (instance == null || m_Wrapper.m_ModeActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_ModeActionsCallbackInterfaces.Add(instance);
-            @Space.started += instance.OnSpace;
-            @Space.performed += instance.OnSpace;
-            @Space.canceled += instance.OnSpace;
-        }
-
-        private void UnregisterCallbacks(IModeActions instance)
-        {
-            @Space.started -= instance.OnSpace;
-            @Space.performed -= instance.OnSpace;
-            @Space.canceled -= instance.OnSpace;
-        }
-
-        public void RemoveCallbacks(IModeActions instance)
-        {
-            if (m_Wrapper.m_ModeActionsCallbackInterfaces.Remove(instance))
-                UnregisterCallbacks(instance);
-        }
-
-        public void SetCallbacks(IModeActions instance)
-        {
-            foreach (var item in m_Wrapper.m_ModeActionsCallbackInterfaces)
-                UnregisterCallbacks(item);
-            m_Wrapper.m_ModeActionsCallbackInterfaces.Clear();
-            AddCallbacks(instance);
-        }
-    }
-    public ModeActions @Mode => new ModeActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     public InputControlScheme KeyboardMouseScheme
     {
@@ -434,9 +386,6 @@ public partial class @RollABall: IInputActionCollection2, IDisposable
     public interface IPlayerActions
     {
         void OnMove(InputAction.CallbackContext context);
-    }
-    public interface IModeActions
-    {
-        void OnSpace(InputAction.CallbackContext context);
+        void OnChangeMode(InputAction.CallbackContext context);
     }
 }

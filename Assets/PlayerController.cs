@@ -34,8 +34,12 @@ public class PlayerController : MonoBehaviour
 
     private LineRenderer lineRenderer;
 
+    enum modes { Nromal, Distance, Vision};
+    int mode = 1;
+
     void Start()
     {
+        Debug.Log("0");
         count = 0;
         pickUp[0] = pickUp1;
         pickUp[1] = pickUp2;
@@ -59,6 +63,13 @@ public class PlayerController : MonoBehaviour
         moveValue = value.Get<Vector2>();
     }
 
+    void OnChangeMode(InputValue value)
+    {
+        Debug.Log("mode");
+        if (mode < 2) { mode++; }
+        else mode = 0;
+        Debug.Log(mode);
+    }
     private void FixedUpdate()
     {
         Vector3 movement = new Vector3(moveValue.x, 0.0f, moveValue.y);
@@ -66,9 +77,19 @@ public class PlayerController : MonoBehaviour
         newPosition = transform.position;
         velocity = CountDistance(newPosition, position) / Time.fixedDeltaTime;
         position = transform.position;
-        SetPositionText();
-        SetDistanceText();
-        SetVelocityText();
+        if (mode == 0)
+        {
+            positionText.text = null;
+            distanceText.text = null;
+            velocityText.text = null;
+        }
+        if (mode == 1)
+        {
+            SetPositionText();
+            SetDistanceText();
+            SetVelocityText();
+        }
+
         
     }
     void OnTriggerEnter(Collider other)

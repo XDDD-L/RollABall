@@ -13,6 +13,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "changeMode",
+                    "type": "Button",
+                    "id": "f217bf3f-6d13-4b14-b2f6-939e32d08479",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -114,32 +123,15 @@
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
-                }
-            ]
-        },
-        {
-            "name": "Mode",
-            "id": "65a7d457-fbf1-40b5-87fb-130dd68cec55",
-            "actions": [
-                {
-                    "name": "Space",
-                    "type": "Button",
-                    "id": "76c6d243-6c92-4a20-a8d8-c0882df9b72b",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
+                },
                 {
                     "name": "",
-                    "id": "9e42d6ba-3734-4cfd-ba6d-52b24efc3e46",
+                    "id": "777f1009-4c77-4b6a-b0aa-e1da15ca3b76",
                     "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Space",
+                    "groups": "",
+                    "action": "changeMode",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
