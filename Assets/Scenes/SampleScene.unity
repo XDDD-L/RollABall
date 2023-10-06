@@ -1620,7 +1620,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveValue: {x: 0, y: 0}
   position: {x: 0, y: 0, z: 0}
-  newPosition: {x: 0, y: 0, z: 0}
+  oldPosition: {x: 0, y: 0, z: 0}
   speed: 500
   velocity: 0
   scoreText: {fileID: 1686871803}
@@ -1633,7 +1633,7 @@ MonoBehaviour:
   pickUp3: {fileID: 1715980371}
   pickUp4: {fileID: 391603496}
   pickUp5: {fileID: 1451673015}
-  pickUps:
+  pickUp:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -2187,8 +2187,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4292694346
-  m_fontColor: {r: 0.29019606, g: 0.31633657, b: 0.8666667, a: 1}
+    rgba: 4292431950
+  m_fontColor: {r: 0.30758274, g: 0.31178018, b: 0.8490566, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

@@ -9,10 +9,10 @@ using System;
 
 public class PlayerController : MonoBehaviour
 {
-    //public GameObject player;
+
     public Vector2 moveValue;
     public Vector3 position;
-    public Vector3 newPosition;
+    public Vector3 oldPosition;
     public float speed;
     public float velocity;
     private int count;
@@ -33,13 +33,13 @@ public class PlayerController : MonoBehaviour
     float minDistance = 99999;
 
     private LineRenderer lineRenderer;
+    public Light fillLight;
 
     enum modes { Nromal, Distance, Vision};
     int mode = 1;
 
     void Start()
     {
-        Debug.Log("0");
         count = 0;
         pickUp[0] = pickUp1;
         pickUp[1] = pickUp2;
@@ -47,7 +47,6 @@ public class PlayerController : MonoBehaviour
         pickUp[3] = pickUp4;
         pickUp[4] = pickUp5;
         lineRenderer = gameObject.AddComponent<LineRenderer>();
-        
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
 
@@ -65,29 +64,49 @@ public class PlayerController : MonoBehaviour
 
     void OnChangeMode(InputValue value)
     {
-        Debug.Log("mode");
         if (mode < 2) { mode++; }
         else mode = 0;
-        Debug.Log(mode);
     }
     private void FixedUpdate()
     {
         Vector3 movement = new Vector3(moveValue.x, 0.0f, moveValue.y);
         GetComponent<Rigidbody>().AddForce(movement * speed * Time.fixedDeltaTime);
-        newPosition = transform.position;
-        velocity = CountDistance(newPosition, position) / Time.fixedDeltaTime;
+        oldPosition = position;
+        //newPosition = transform.position;
         position = transform.position;
+        velocity = CountDistance(oldPosition, position) / Time.fixedDeltaTime;
+        
         if (mode == 0)
         {
             positionText.text = null;
             distanceText.text = null;
             velocityText.text = null;
+            lineRenderer.SetPosition(0, transform.position);
+            lineRenderer.SetPosition(1, transform.position);
+            
+            fillLight.color = Color.white;
+            for (int n = 0; n < pickUp.Length; n++)
+            {              
+                pickUp[n].GetComponent<Renderer>().material.color = Color.white;
+            }
         }
         if (mode == 1)
         {
+            lineRenderer.gameObject.SetActive(true);
+            
+            fillLight.color = Color.blue;
             SetPositionText();
             SetDistanceText();
             SetVelocityText();
+        }
+        if(mode == 2)
+        {
+            lineRenderer.gameObject.SetActive(true);
+            positionText.text = null;
+            distanceText.text = null;
+            velocityText.text = null;
+            fillLight.color = Color.green;
+            mode3();
         }
 
         
@@ -120,38 +139,12 @@ public class PlayerController : MonoBehaviour
 
     private void SetDistanceText()
     {
-        //int i = 0;
         isActive[0] = pickUp1.activeSelf;
         isActive[1] = pickUp2.activeSelf;
         isActive[2] = pickUp3.activeSelf;
         isActive[3] = pickUp4.activeSelf;
         isActive[4] = pickUp5.activeSelf;
-        /*if (pickUp1.activeSelf == true)
-        {
-            isActive[0] = 1;
-            i++;
-        }
-        if (pickUp2.activeSelf == true)
-        {
-            isActive[1] = 1;
-            i++;
-        }
-        if (pickUp3.activeSelf == true)
-        {
-            isActive[2] = 1;
-            i++;
-        }
-        if (pickUp4.activeSelf == true)
-        {
-            isActive[3] = 1;
-            i++;
-        }
-        if (pickUp5.activeSelf == true)
-        {
-            isActive[4] = 1;
-        }*/
-
-        //float[] array = { CountDistance(pickUp1.transform.position, position), CountDistance(pickUp2.transform.position, position), CountDistance(pickUp3.transform.position, position), CountDistance(pickUp4.transform.position, position), CountDistance(pickUp5.transform.position, position) };
+       
         minDistance = 99999;
         int min = 0;
         for (int n = 0; n < pickUp.Length; n++)
@@ -197,5 +190,53 @@ public class PlayerController : MonoBehaviour
         float distance = 0;
         distance = (float)Math.Pow(Math.Pow((d1.x - d2.x), 2) + Math.Pow((d1.z - d2.z), 2), 0.5);
         return distance;
+    }
+        private float CountDistance2(Vector3 d1, Vector3 d2)
+    {
+        float distance = 0;
+        distance = (float)(Math.Pow(Math.Abs(d1.x * d2.z - d2.x * d1.z), 0.5) / Math.Pow(Math.Pow(d1.x, 2) + Math.Pow(d1.z, 2), 0.5));
+        return distance;
+    }
+
+    private void mode3()
+    {
+        Vector3 towards = (transform.position - oldPosition) * 50;
+      
+        //double distance = 0;
+
+        isActive[0] = pickUp1.activeSelf;
+        isActive[1] = pickUp2.activeSelf;
+        isActive[2] = pickUp3.activeSelf;
+        isActive[3] = pickUp4.activeSelf;
+        isActive[4] = pickUp5.activeSelf;
+
+        minDistance = 99999;
+        int min = 9;
+        for (int n = 0; n < pickUp.Length; n++)
+        {
+            if (isActive[n])
+            {
+                if (CountDistance2(towards, pickUp[n].transform.position - transform.position) <= minDistance && (towards.x* (pickUp[n].transform.position - transform.position).x+ towards.z * (pickUp[n].transform.position - transform.position).z) >= 0)
+                {
+                    minDistance = CountDistance2(towards, pickUp[n].transform.position - transform.position);
+                    min = n;
+                }                
+            }
+        }
+        for (int n = 0; n < pickUp.Length; n++)
+        {
+            if (n == min)
+            {
+                pickUp[n].GetComponent<Renderer>().material.color = Color.green;
+                pickUp[n].transform.LookAt(transform.position);
+           
+            }
+            else
+            {
+                pickUp[n].GetComponent<Renderer>().material.color = Color.white;
+            }
+        }
+        lineRenderer.SetPosition(0, transform.position);
+        lineRenderer.SetPosition(1, transform.position+towards);
     }
 }
